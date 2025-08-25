@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>醫師薪資計算系統</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+      body {
+        font-family: "Microsoft JhengHei", Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .upload-section {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+        justify-content: center;
+        align-items: stretch;
+      }
+      .upload-box {
+        flex: 1;
+        max-width: 400px;
+        padding: 20px;
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .upload-box:hover {
+        border-color: #666;
+        background-color: #f9f9f9;
+      }
+      .upload-box h3 {
+        margin-top: 0;
+        color: #555;
+      }
+      .filename {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 20px;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+      .paste-btn {
+        background-color: #2196f3;
+        font-size: 18px;
+        padding: 15px 30px;
+      }
+      .paste-btn:hover {
+        background-color: #1976d2;
+      }
+      #results {
+        margin-top: 30px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      tr:hover {
+        background-color: #f5f5f5;
+      }
+      .summary {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #e8f5e9;
+        border-radius: 4px;
+      }
+      .copy-btn {
+        background-color: #2196f3;
+        margin-left: 10px;
+      }
+      .copy-btn:hover {
+        background-color: #1976d2;
+      }
+      .error {
+        color: red;
+        margin-top: 10px;
+      }
+      .success {
+        color: green;
+        margin-top: 10px;
+      }
+      .loading {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+      }
+      .loading.active {
+        display: block;
+      }
+      .paste-box {
+        background-color: #e3f2fd;
+        border-color: #2196f3;
+      }
+      .paste-box:hover {
+        background-color: #bbdefb;
+      }
+      .multiplier-info {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>醫師薪資計算系統</h1>
+
+      <div class="upload-section">
+        <div class="upload-box paste-box" id="pasteBox">
+          <h3>快速貼上</h3>
+          <button class="paste-btn" id="pasteBtn">貼上工作細項</button>
+          <p>從剪貼簿貼上資料</p>
+          <div class="filename" id="pasteStatus"></div>
+        </div>
+
+        <div
+          class="upload-box"
+          onclick="document.getElementById('workFile').click()"
+        >
+          <h3>檔案上傳</h3>
+          <p>或上傳檔案（CSV, TXT, Excel）</p>
+          <input
+            type="file"
+            id="workFile"
+            style="display: none"
+            accept=".csv,.txt,.xlsx,.xls"
+          />
+          <div class="filename" id="workFileName"></div>
+        </div>
+      </div>
+
+      <div style="text-align: center">
+        <button id="calculateBtn" onclick="calculateSalary()" disabled>
+          計算薪資
+        </button>
+      </div>
+
+      <div class="loading" id="loading">計算中，請稍候...</div>
+
+      <div id="results"></div>
+    </div>
+
+    <script>
+      // 內建的傭金比例表
+      const commissionTable = {
+        E4012C: { base: 40, category: "其他" },
+        "X75-785": { base: 186.75, category: "乳攝" }, // (放射)婦女保健-乳房檢查(40歲至74歲)
+        "X75-011M": { base: 33, category: "一般" }, // (放射)山地鄉胸部X光檢查(IDS)
+        "X75-990A": { base: 992.32, category: "介入" }, // (放射)治療性導管植入術 — 末梢靜脈植入中心導管術
+        "M27-224T": { base: 177, category: "超音波" }, // (健檢用)乳房超音波
+        "X75-M04": { base: 439.04, category: "介入" }, // (放射)術中超音波 Intra-operative echo
+        "X75-M06": { base: 206.1, category: "乳攝" }, // (放射)Mammography magnify
+        "X75-011": { base: 24, category: "一般" }, // (放射)CHEST P-A VIEW
+        "X75-012": { base: 24, category: "一般" }, // (放射)CHEST IN LATERAL VIEW
+        "X75-013": { base: 24, category: "一般" }, // (放射)CHEST IN OBLIQUE VIEW
+        "X75-101": { base: 24, category: "一般" }, // (放射)PLAIN ABD.(ERECTED)
+        "X75-121": { base: 24, category: "一般" }, // (放射)KUB
+        "X75-162": { base: 43.2, category: "一般" }, // (放射)SKULL ROUTINE 2 VIEWS(A-P,LAT.)
+        "X75-184": { base: 24, category: "一般" }, // (放射)SKULL FILM IN WATER'S VIEW
+        "X75-201": { base: 43.2, category: "一般" }, // (放射)SINUS IN CALDWELL, LATERAL AND WATER'S
+        "X75-271": { base: 24, category: "一般" }, // (放射)MANDIBLE(ONE VIEW)
+        "X75-274": { base: 24, category: "一般" }, // (放射)CHEST IN LATERAL VIEW
+        "X75-351": { base: 30, category: "一般" }, // (放射)CERVICAL SPINE(1 VIEW)
+        "X75-352": { base: 54, category: "一般" }, // (放射)CERVICAL SPINE(2 VIEWS, A-P, LAT.)
+        "X75-371": { base: 30, category: "一般" }, // (放射)THORACIC SPINE(1 VIEW)
+        "X75-382": { base: 54, category: "一般" }, // (放射)THORACIC LUMBAR SPINE(2 VIEWS)
+        "X75-391": { base: 30, category: "一般" }, // (放射)LUMBAR SPINE (1 VIEW)
+        "X75-392": { base: 54, category: "一般" }, // (放射)LUMBAR SPINE (2 VIEWS)
+        "X75-407": { base: 54, category: "一般" }, // (放射)KUB + L-S SPINE LATERAL VIEW(STANDING)
+        "X75-411": { base: 30, category: "一般" }, // (放射)SACRUM (1 VIEW)
+        "X75-442": { base: 30, category: "一般" }, // (放射)NECK(1 VIEW)
+        "X75-504": { base: 43.2, category: "一般" }, // (放射)SCAPULAR A-P & LAT
+        "X75-515": { base: 43.2, category: "一般" }, // (放射)SHOULDER JOINT(ONE) A-P & LAT
+        "X75-521": { base: 24, category: "一般" }, // (放射)CLAVICLE ONE SIDE IN A-P VIEW
+        "X75-531": { base: 43.2, category: "一般" }, // (放射)HUMERUS ONE SIDE
+        "X75-532": { base: 43.2, category: "一般" }, // (放射)ELBOW JOINT ONE SIDE
+        "X75-533": { base: 43.2, category: "一般" }, // (放射)FOREARM ONE SIDE
+        "X75-534": { base: 43.2, category: "一般" }, // (放射)WRIST,ONE SIDE, A-P AND LAT.
+        "X75-537": { base: 43.2, category: "一般" }, // (放射)HAND, ONE SIDE,(A-P AND OBLIQUE)
+        "X75-540": { base: 24, category: "一般" }, // (放射)HAND OR FINGER VIEW(1 VIEW)
+        "X75-541": { base: 24, category: "一般" }, // (放射)PELVIS IN A-P VIEW
+        "X75-542": { base: 24, category: "一般" }, // (放射)HIP JOINT A-P, ONE SIDE
+        "X75-543": { base: 24, category: "一般" }, // (放射)HIP JOINT, LAT.VIEW (ONE SIDE)
+        "X75-581": { base: 43.2, category: "一般" }, // (放射)FEMORAL SHAFT(ONE SIDE)
+        "X75-591": { base: 43.2, category: "一般" }, // (放射)KNEE JOINT,(ONE SIDE)A-P AND LAT. VIEW
+        "X75-592": { base: 24, category: "一般" }, // (放射)MACHANT S VIEW OF PATELLA
+        "X75-611": { base: 43.2, category: "一般" }, // (放射)LOWER LEG,ONE SIDE (TIBIA AND FIBULA)
+        "X75-612": { base: 43.2, category: "一般" }, // (放射)ANKLE JOINT, ONE SIDE
+        "X75-613": { base: 43.2, category: "一般" }, // (放射)FOOT, ONE SIDE
+        "X75-614": { base: 43.2, category: "一般" }, // (放射)CALCANEUS, ONE SIDE
+        "X75-622": { base: 75.6, category: "一般" }, // (放射)SPLIT SCANOGRAPHY
+        "X75-632": { base: 180, category: "一般" }, // (放射)LONG BONE SURVEY(CHILD UNDER 5 YEARS)
+        "X75-987": { base: 780, category: "MRI" }, // (放射)磁振造影-無造影劑
+        "X75-989": { base: 1380, category: "MRI" }, // (放射)磁振造影(無/有顯影劑)
+        "X75-991": { base: 456, category: "CT" }, // (放射)電腦斷層造影：無造影劑
+        "X75-992": { base: 604.2, category: "CT" }, // (放射)電腦斷層造影：有/無造影劑
+        "X75-M09": { base: 108, category: "一般" }, // (健檢用)X光骨骼密度
+        "X75-M10": { base: 36, category: "一般" }, // (健檢用)Standing(Chest PA)
+        "X75-M11": { base: 36, category: "一般" }, // (健檢用)ABDOMEN Supine KUB
+        "X75-M12": { base: 1170, category: "MRI" }, // (健檢用)MRI磁共振檢查-無造影劑
+        "X75-M13": { base: 720, category: "CT" }, // (健檢)心臟鈣化分析
+        "X75-M14": { base: 975, category: "介入" }, // (健檢)腦部與頸動脈電腦斷層血管攝影
+        "X75-M15": { base: 2475, category: "CT" }, // (健檢)心臟冠狀動脈CT(含鈣化分析)
+        "X75-M18": { base: 975, category: "CT" }, // (健檢)肝癌腫瘤篩檢
+        "X75-M19": { base: 720, category: "CT" }, // (健檢)低劑量肺部電腦斷層掃瞄
+        "X75-004EA": { base: 2475, category: "CT" }, // 心臟冠狀動脈CT
+        "X75-006EA": { base: 720, category: "CT" }, // (自費用)低劑量肺部電腦斷層掃瞄
+        "X75-M03": { base: 2070, category: "MRI" }, // (放射)自費Primovist Liver MRI
+        "X75-M25": { base: 1380, category: "MRI" }, // (放射)健保Primovist顯影劑 Liver MRI
+        "X75-661": { base: 192, category: "特殊攝影" }, // (放射)ESOPHAGOGRAPHY
+        "X75-681": { base: 462.4, category: "特殊攝影" }, // (放射)UPPER G-I SERIES
+        "X75-701": { base: 470.4, category: "特殊攝影" }, // (放射)SMALL BOWEL SERIES
+        "X75-736": { base: 240, category: "特殊攝影" }, // (放射)VOIDING URETHROCYSTOGRAPHY
+        "X75-760": { base: 1382.4, category: "介入" }, // (放射)(膽囊)經皮穿刺膽囊引流術
+        "X75-786": { base: 960, category: "介入" }, // (放射)乳房攝影立體定位組織切片術
+        "X75-896": { base: 7040, category: "介入" }, // (放射)HAIC 血管阻塞術
+        "X75-975": { base: 72, category: "其他" }, // (放射)X-ray bone densitometr
+        "X75-980": { base: 492.8, category: "特殊攝影" }, // (放射)SWALLOWING VIDEO FLUOROGRAPHY
+        "X75-983": { base: 1216, category: "介入" }, // (放射)電腦斷層導引下組織切片,取樣剛體CT Guide biopsy
+        "X75-999": { base: 92, category: "介入" }, // (放射)血管攝影使用非離子性顯影劑
+        "X75-721": { base: 393.6, category: "特殊攝影" }, // (放射)LOWER G-I SERIES
+        "X75-731": { base: 173.4, category: "一般" }, // (放射)INFUSION I.V.P.
+        "X75-781": { base: 448, category: "特殊攝影" }, // (放射)子宮輸卵管造影 (H.S.G)
+        "X75-784": { base: 149.4, category: "乳攝" }, // (放射)MAMMOGRAPHY
+        "X75-009E": { base: 202.5, category: "一般" }, // (限自費)骨質密度檢測(腰椎及髖骨)
+        "X75-002ZA": { base: 720, category: "CT" }, // (國健署)肺癌篩檢
+        "X75-M20": { base: 3082, category: "介入" }, // (放射)經皮穿肝膽管引流術 Percutaneous Abscess Drainage PTAD
+        "X75-915": { base: 1920, category: "介入" }, // (放射)L'T ANTEGRADE VENOGRAPHY(左側靜脈X光攝影)
+        "X75-911": { base: 1920, category: "介入" }, // (放射)ANTEGRADE VENOGRAPHY靜脈 X光攝影
+        "X75-898": { base: 7040, category: "介入" }, // (放射)血管阻塞術
+        "X75-M02": { base: 9149.12, category: "介入" }, // (放射)TACE 經導管動脈化學藥物栓塞
+        "X75-M08": { base: 224.1, category: "乳攝" }, // (健檢用)乳房攝影檢查
+        "X75-745": { base: 262.4, category: "特殊攝影" }, // (放射)插入 T型管子膽囊造影術(T-Tube)
+        "X75-412": { base: 54, category: "一般" }, // (放射)SACRUM (2 VIEWS)
+        "X75-452": { base: 54, category: "一般" }, // (放射)WHOLE SPINE IN LAT. VIEW(STANDING OR SUP
+        "X75-451": { base: 54, category: "一般" }, // (放射)WHOLE SPINE IN A-P VIEW FOR SCOLIOSIS
+        "X75-014": { base: 24, category: "一般" }, // (放射)CHEST IN LORDOTIC VIEW
+        "X75-539": { base: 24, category: "一般" }, // (放射)WRIST VIEW(1 VIEW)
+        "X75-422": { base: 54, category: "一般" }, // (放射)COCCYX BONE (2 VIEWS)
+        "X75-103": { base: 24, category: "一般" }, // (放射)PLAIN ABD.(DECUBITUS POSITION)
+        "X75-616": { base: 24, category: "一般" }, // (放射)TIBIA VIEW(1 VIEW)
+        "X75-421": { base: 30, category: "一般" }, // (放射)COCCYX BONE (1 VIEW)
+        "X75-231": { base: 24, category: "一般" }, // (放射)SKULL T-M Joints
+        "X75-M17": { base: 45, category: "一般" }, // (健檢用)正面腰椎X光spine ap& lat lumbar
+        "X75-M23": { base: 36, category: "一般" }, // X光片複製費
+        "X75-852": { base: 3600, category: "介入" }, // (放射)頸動脈造影：雙側
+        "X75-853": { base: 1545.6, category: "介入" }, // (放射)椎動脈造影
+        "X75-M16": { base: 36, category: "一般" }, // (健檢用)正面頸椎X光spine ap& lat Cervical
+        "X75-761": { base: 1008, category: "特殊攝影" }, // (放射)經皮穿肝膽管造影術 P.T.C.
+        "X75-749": { base: 384, category: "介入" }, // (放射)REVISION OF PERCUTANEOUS NEPHROSTOMY TUBE(PIGTAIL)
+        "X75-M27": { base: 1380, category: "MRI" }, // (放射)MRI of Rectal Staging
+        "X75-891": { base: 2400, category: "介入" }, // (放射)ARTERIOGRAPHY OF EXTREMITY四肢血管造影
+        "X75-913": { base: 1920, category: "介入" }, // (放射)R'T ANTEGRADE VENOGRAPHY(右側靜脈X光攝影)
+        "X75-762": { base: 3072, category: "介入" }, // (放射)P.T.C.D
+        "X75-M29": { base: 805.6, category: "CT" }, // (放射)CT of Chest+Abdomen+Pelvis
+        "X75-M28": { base: 608, category: "CT" }, // (放射)CT of Chest+Abdomen+Pelvis
+        "X75-M32": { base: 608, category: "CT" }, // (放射)CT of Head + C-spine(for 急診 trauma專用)
+        "X75-051": { base: 24, category: "一般" }, // (放射)CHEST IN DECUBITUS POSITION
+        "X75-763": { base: 384, category: "介入" }, // PTCD revision
+        "X75-971": { base: 576, category: "特殊攝影" }, // arthrogram
+      };
+
+      // 檢查別的倍數設定
+      const categoryMultipliers = {
+        "一般": 1.0,
+        "CT": 1.0,
+        "MRI": 1.0,
+        "超音波": 1.0,
+        "介入": 1.0,
+        "特殊攝影": 1.0,
+        "其他": 1.0
+      };
+
+      let workData = null;
+
+      // 從剪貼簿貼上資料
+      function pasteFromClipboard() {
+        if (!navigator.clipboard) {
+          document.getElementById("pasteStatus").innerHTML =
+            '<span class="error">瀏覽器不支援剪貼簿 API</span>';
+          return;
+        }
+        
+        document.getElementById("pasteStatus").innerHTML = "正在讀取剪貼簿...";
+        
+        navigator.clipboard.readText()
+          .then(text => {
+            if (text && text.trim()) {
+              Papa.parse(text, {
+                delimiter: "\t",
+                skipEmptyLines: true,
+                complete: function (results) {
+                  if (results.data && results.data.length > 1) {
+                    workData = results.data;
+                    document.getElementById("pasteStatus").innerHTML =
+                      `<span class="success">✓ 已成功貼上 ${results.data.length} 行資料</span>`;
+                    checkReady();
+                  } else {
+                    Papa.parse(text, {
+                      delimiter: ",",
+                      skipEmptyLines: true,
+                      complete: function (results2) {
+                        if (results2.data && results2.data.length > 1) {
+                          workData = results2.data;
+                          document.getElementById("pasteStatus").innerHTML =
+                            `<span class="success">✓ 已成功貼上 ${results2.data.length} 行資料</span>`;
+                          checkReady();
+                        } else {
+                          document.getElementById("pasteStatus").innerHTML =
+                            '<span class="error">貼上的資料格式無法識別</span>';
+                        }
+                      },
+                    });
+                  }
+                },
+                error: function(error) {
+                  document.getElementById("pasteStatus").innerHTML =
+                    '<span class="error">資料解析失敗</span>';
+                }
+              });
+            } else {
+              document.getElementById("pasteStatus").innerHTML =
+                '<span class="error">剪貼簿中沒有資料</span>';
+            }
+          })
+          .catch(err => {
+            document.getElementById("pasteStatus").innerHTML =
+              '<span class="error">無法讀取剪貼簿，請確認瀏覽器權限</span>';
+          });
+      }
+
+      // 檢查是否可以開始計算
+      function checkReady() {
+        const calculateBtn = document.getElementById("calculateBtn");
+        if (workData && workData.length > 1) {
+          calculateBtn.disabled = false;
+        } else {
+          calculateBtn.disabled = true;
+        }
+      }
+
+      // 等待頁面載入完成後綁定事件
+      window.addEventListener('load', function() {
+        const pasteBtn = document.getElementById('pasteBtn');
+        const pasteBox = document.getElementById('pasteBox');
+        
+        if (pasteBtn) {
+          pasteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            pasteFromClipboard();
+          });
+        }
+        
+        if (pasteBox) {
+          pasteBox.addEventListener('click', function(e) {
+            if (e.target.id !== 'pasteBtn') {
+              pasteFromClipboard();
+            }
+          });
+        }
+      });
+
+      // 處理檔案上傳
+      document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById("workFile").addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            document.getElementById("workFileName").textContent = file.name;
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+              const data = event.target.result;
+
+              if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
+                const workbook = XLSX.read(data, { type: "binary" });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                workData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+              } else {
+                Papa.parse(data, {
+                  delimiter: "\t",
+                  complete: function (results) {
+                    workData = results.data;
+                  },
+                });
+              }
+
+              checkReady();
+            };
+
+            if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
+              reader.readAsBinaryString(file);
+            } else {
+              reader.readAsText(file);
+            }
+          }
+        });
+      });
+
+      // 計算薪資
+      function calculateSalary() {
+        document.getElementById("loading").classList.add("active");
+        document.getElementById("results").innerHTML = "";
+
+        setTimeout(() => {
+          try {
+            const headers = workData[0];
+            const doctorIndex = headers.indexOf("醫師姓名");
+            const codeIndex = headers.indexOf("檢查項目");
+            const sourceIndex = headers.indexOf("來源別");
+
+            if (doctorIndex === -1 || codeIndex === -1 || sourceIndex === -1) {
+              throw new Error("找不到必要的欄位：醫師姓名、檢查項目、來源別");
+            }
+
+            const doctorSalaries = {};
+            const doctorDetails = {};
+            const unknownItems = new Set();
+            const sourceStats = {};
+            const categoryStats = {};
+
+            for (let i = 1; i < workData.length; i++) {
+              const row = workData[i];
+              if (!row[doctorIndex]) continue;
+
+              const doctor = row[doctorIndex].trim();
+              const code = row[codeIndex].trim();
+              const source = row[sourceIndex].trim();
+
+              if (!doctorSalaries[doctor]) {
+                doctorSalaries[doctor] = 0;
+                doctorDetails[doctor] = [];
+              }
+
+              if (!sourceStats[source]) {
+                sourceStats[source] = { count: 0, commission: 0 };
+              }
+
+              if (!commissionTable.hasOwnProperty(code)) {
+                unknownItems.add(code);
+              }
+
+              const itemInfo = commissionTable[code] || { base: 0, category: "其他" };
+              const category = itemInfo.category;
+              
+              if (!categoryStats[category]) {
+                categoryStats[category] = { count: 0, commission: 0 };
+              }
+
+              let commission = itemInfo.base * 0.8;
+
+              if (source === "E") {
+                commission *= 1.2;
+              }
+
+              const categoryMultiplier = categoryMultipliers[category] || 1.0;
+              commission *= categoryMultiplier;
+
+              doctorSalaries[doctor] += commission;
+              sourceStats[source].count++;
+              sourceStats[source].commission += commission;
+              categoryStats[category].count++;
+              categoryStats[category].commission += commission;
+
+              doctorDetails[doctor].push({
+                code: code,
+                source: source,
+                category: category,
+                baseCommission: itemInfo.base,
+                categoryMultiplier: categoryMultiplier,
+                finalCommission: commission,
+              });
+            }
+
+            let html = "<h2>薪資計算結果</h2>";
+            html += '<button class="copy-btn" onclick="copyResults()">複製結果</button>';
+            html += '<table id="resultTable">';
+            html += "<thead><tr><th>醫師姓名</th><th>薪資總額</th><th>工作項目數</th></tr></thead>";
+            html += "<tbody>";
+
+            for (const [doctor, salary] of Object.entries(doctorSalaries)) {
+              html += `<tr>
+                        <td>${doctor}</td>
+                        <td>${salary.toLocaleString("zh-TW", {
+                          style: "currency",
+                          currency: "TWD",
+                          minimumFractionDigits: 0,
+                        })}</td>
+                        <td>${doctorDetails[doctor].length}</td>
+                      </tr>`;
+            }
+
+            html += "</tbody></table>";
+
+            const totalSalary = Object.values(doctorSalaries).reduce(
+              (sum, salary) => sum + salary,
+              0
+            );
+            html += `<div class="summary">
+                      <h3>總計</h3>
+                      <p>總醫師人數：${Object.keys(doctorSalaries).length} 人</p>
+                      <p>總薪資：${totalSalary.toLocaleString("zh-TW", {
+                        style: "currency",
+                        currency: "TWD",
+                        minimumFractionDigits: 0,
+                      })}</p>
+                    </div>`;
+
+            html += `<div class="summary" style="background-color: #e8f5e9;">
+                      <h3>來源別分類</h3>`;
+
+            const sortedSources = Object.keys(sourceStats).sort();
+            for (const source of sortedSources) {
+              const stats = sourceStats[source];
+              html += `<p>${source}: ${stats.count} 筆，佣金 ${stats.commission.toLocaleString("zh-TW", {
+                maximumFractionDigits: 0,
+              })} 元</p>`;
+            }
+            html += `</div>`;
+
+            html += `<div class="summary" style="background-color: #f3e5f5;">
+                      <h3>檢查別分類</h3>`;
+
+            const sortedCategories = Object.keys(categoryStats).sort();
+            for (const category of sortedCategories) {
+              const stats = categoryStats[category];
+              const multiplier = categoryMultipliers[category] || 1.0;
+              html += `<p>${category} (倍數: ${multiplier}): ${stats.count} 筆，佣金 ${stats.commission.toLocaleString("zh-TW", {
+                maximumFractionDigits: 0,
+              })} 元</p>`;
+            }
+
+
+
+            if (unknownItems.size > 0) {
+              html += `<div class="summary" style="background-color: #fff3e0;">
+                        <h3>無法對應的檢查項目</h3>
+                        <p>以下檢查項目在傭金表中找不到對應的金額：</p>
+                        <ul>`;
+
+              for (const item of unknownItems) {
+                html += `<li>${item}</li>`;
+              }
+
+              html += `</ul>
+                        <p>這些項目的傭金金額均計為 0 元。</p>
+                      </div>`;
+            }
+
+            document.getElementById("results").innerHTML = html;
+          } catch (error) {
+            document.getElementById("results").innerHTML = `<div class="error">錯誤：${error.message}</div>`;
+          }
+
+          document.getElementById("loading").classList.remove("active");
+        }, 100);
+      }
+
+      // 複製結果到剪貼簿
+      function copyResults() {
+        const table = document.getElementById("resultTable");
+        let text = "";
+
+        const headers = table.querySelectorAll("th");
+        text += Array.from(headers).map((th) => th.textContent).join("\t") + "\n";
+
+        const rows = table.querySelectorAll("tbody tr");
+        rows.forEach((row) => {
+          const cells = row.querySelectorAll("td");
+          text += Array.from(cells).map((td) => td.textContent).join("\t") + "\n";
+        });
+
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            alert("結果已複製到剪貼簿！");
+          })
+          .catch((err) => {
+            console.error("複製失敗：", err);
+            alert("複製失敗，請手動選擇複製");
+          });
+      }
+    </script>
+  </body>
+</html>
+            
