@@ -193,7 +193,7 @@
     <script>
       // 內建的傭金比例表
       const commissionTable = {
-        E4012C: { base: 40, category: "其他" },
+        E4012C: { base: 40, category: "其他" },  //診斷結果編碼資料處理費
         "X75-785": { base: 186.75, category: "乳攝" }, // (放射)婦女保健-乳房檢查(40歲至74歲)
         "X75-011M": { base: 33, category: "一般" }, // (放射)山地鄉胸部X光檢查(IDS)
         "X75-990A": { base: 992.32, category: "介入" }, // (放射)治療性導管植入術 — 末梢靜脈植入中心導管術
@@ -307,8 +307,11 @@
         "X75-M32": { base: 608, category: "CT" }, // (放射)CT of Head + C-spine(for 急診 trauma專用)
         "X75-051": { base: 24, category: "一般" }, // (放射)CHEST IN DECUBITUS POSITION
         "X75-763": { base: 384, category: "介入" }, // PTCD revision
+        "X75-872": { base: 3600, category: "介入" }, // 腹腔動脈造影 ─二條血管
+        "X75-873": { base: 4800, category: "介入" }, // 腹腔動脈造影─三條血管以上
         "X75-971": { base: 576, category: "特殊攝影" }, // arthrogram
         "X75-523": { base: 24, category: "一般" }, // (放射)CLAVICLE ,SPECIAL VIEW ONE EXPOSURE
+        "X75-275": { base: 30, category: "一般" }, // 	SPINE VIEW
       };
 
       // 檢查別的倍數設定
