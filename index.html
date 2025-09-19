@@ -193,125 +193,119 @@
     <script>
       // 內建的傭金比例表
       const commissionTable = {
-        E4012C: { base: 40, category: "其他" },  //診斷結果編碼資料處理費
-        "X75-785": { base: 186.75, category: "乳攝" }, // (放射)婦女保健-乳房檢查(40歲至74歲)
-        "X75-011M": { base: 33, category: "一般" }, // (放射)山地鄉胸部X光檢查(IDS)
-        "X75-990A": { base: 992.32, category: "介入" }, // (放射)治療性導管植入術 — 末梢靜脈植入中心導管術
-        "M27-224T": { base: 177, category: "超音波" }, // (健檢用)乳房超音波
-        "X75-M04": { base: 439.04, category: "介入" }, // (放射)術中超音波 Intra-operative echo
-        "X75-M06": { base: 206.1, category: "乳攝" }, // (放射)Mammography magnify
-        "X75-011": { base: 24, category: "一般" }, // (放射)CHEST P-A VIEW
-        "X75-012": { base: 24, category: "一般" }, // (放射)CHEST IN LATERAL VIEW
-        "X75-013": { base: 24, category: "一般" }, // (放射)CHEST IN OBLIQUE VIEW
-        "X75-101": { base: 24, category: "一般" }, // (放射)PLAIN ABD.(ERECTED)
-        "X75-121": { base: 24, category: "一般" }, // (放射)KUB
-        "X75-162": { base: 43.2, category: "一般" }, // (放射)SKULL ROUTINE 2 VIEWS(A-P,LAT.)
-        "X75-184": { base: 24, category: "一般" }, // (放射)SKULL FILM IN WATER'S VIEW
-        "X75-201": { base: 43.2, category: "一般" }, // (放射)SINUS IN CALDWELL, LATERAL AND WATER'S
-        "X75-271": { base: 24, category: "一般" }, // (放射)MANDIBLE(ONE VIEW)
-        "X75-274": { base: 24, category: "一般" }, // (放射)CHEST IN LATERAL VIEW
-        "X75-351": { base: 30, category: "一般" }, // (放射)CERVICAL SPINE(1 VIEW)
-        "X75-352": { base: 54, category: "一般" }, // (放射)CERVICAL SPINE(2 VIEWS, A-P, LAT.)
-        "X75-371": { base: 30, category: "一般" }, // (放射)THORACIC SPINE(1 VIEW)
-        "X75-382": { base: 54, category: "一般" }, // (放射)THORACIC LUMBAR SPINE(2 VIEWS)
-        "X75-391": { base: 30, category: "一般" }, // (放射)LUMBAR SPINE (1 VIEW)
-        "X75-392": { base: 54, category: "一般" }, // (放射)LUMBAR SPINE (2 VIEWS)
-        "X75-407": { base: 54, category: "一般" }, // (放射)KUB + L-S SPINE LATERAL VIEW(STANDING)
-        "X75-411": { base: 30, category: "一般" }, // (放射)SACRUM (1 VIEW)
-        "X75-442": { base: 30, category: "一般" }, // (放射)NECK(1 VIEW)
-        "X75-504": { base: 43.2, category: "一般" }, // (放射)SCAPULAR A-P & LAT
-        "X75-515": { base: 43.2, category: "一般" }, // (放射)SHOULDER JOINT(ONE) A-P & LAT
-        "X75-521": { base: 24, category: "一般" }, // (放射)CLAVICLE ONE SIDE IN A-P VIEW
-        "X75-531": { base: 43.2, category: "一般" }, // (放射)HUMERUS ONE SIDE
-        "X75-532": { base: 43.2, category: "一般" }, // (放射)ELBOW JOINT ONE SIDE
-        "X75-533": { base: 43.2, category: "一般" }, // (放射)FOREARM ONE SIDE
-        "X75-534": { base: 43.2, category: "一般" }, // (放射)WRIST,ONE SIDE, A-P AND LAT.
-        "X75-537": { base: 43.2, category: "一般" }, // (放射)HAND, ONE SIDE,(A-P AND OBLIQUE)
-        "X75-540": { base: 24, category: "一般" }, // (放射)HAND OR FINGER VIEW(1 VIEW)
-        "X75-541": { base: 24, category: "一般" }, // (放射)PELVIS IN A-P VIEW
-        "X75-542": { base: 24, category: "一般" }, // (放射)HIP JOINT A-P, ONE SIDE
-        "X75-543": { base: 24, category: "一般" }, // (放射)HIP JOINT, LAT.VIEW (ONE SIDE)
-        "X75-581": { base: 43.2, category: "一般" }, // (放射)FEMORAL SHAFT(ONE SIDE)
-        "X75-591": { base: 43.2, category: "一般" }, // (放射)KNEE JOINT,(ONE SIDE)A-P AND LAT. VIEW
-        "X75-592": { base: 24, category: "一般" }, // (放射)MACHANT S VIEW OF PATELLA
-        "X75-611": { base: 43.2, category: "一般" }, // (放射)LOWER LEG,ONE SIDE (TIBIA AND FIBULA)
-        "X75-612": { base: 43.2, category: "一般" }, // (放射)ANKLE JOINT, ONE SIDE
-        "X75-613": { base: 43.2, category: "一般" }, // (放射)FOOT, ONE SIDE
-        "X75-614": { base: 43.2, category: "一般" }, // (放射)CALCANEUS, ONE SIDE
-        "X75-622": { base: 75.6, category: "一般" }, // (放射)SPLIT SCANOGRAPHY
-        "X75-632": { base: 180, category: "一般" }, // (放射)LONG BONE SURVEY(CHILD UNDER 5 YEARS)
-        "X75-987": { base: 780, category: "MRI" }, // (放射)磁振造影-無造影劑
-        "X75-989": { base: 1380, category: "MRI" }, // (放射)磁振造影(無/有顯影劑)
-        "X75-991": { base: 456, category: "CT" }, // (放射)電腦斷層造影：無造影劑
-        "X75-992": { base: 604.2, category: "CT" }, // (放射)電腦斷層造影：有/無造影劑
-        "X75-M09": { base: 108, category: "一般" }, // (健檢用)X光骨骼密度
-        "X75-M10": { base: 36, category: "一般" }, // (健檢用)Standing(Chest PA)
-        "X75-M11": { base: 36, category: "一般" }, // (健檢用)ABDOMEN Supine KUB
-        "X75-M12": { base: 1170, category: "MRI" }, // (健檢用)MRI磁共振檢查-無造影劑
-        "X75-M13": { base: 720, category: "CT" }, // (健檢)心臟鈣化分析
-        "X75-M14": { base: 975, category: "介入" }, // (健檢)腦部與頸動脈電腦斷層血管攝影
-        "X75-M15": { base: 2475, category: "CT" }, // (健檢)心臟冠狀動脈CT(含鈣化分析)
-        "X75-M18": { base: 975, category: "CT" }, // (健檢)肝癌腫瘤篩檢
-        "X75-M19": { base: 720, category: "CT" }, // (健檢)低劑量肺部電腦斷層掃瞄
-        "X75-004EA": { base: 2475, category: "CT" }, // 心臟冠狀動脈CT
-        "X75-006EA": { base: 720, category: "CT" }, // (自費用)低劑量肺部電腦斷層掃瞄
-        "X75-M03": { base: 2070, category: "MRI" }, // (放射)自費Primovist Liver MRI
-        "X75-M25": { base: 1380, category: "MRI" }, // (放射)健保Primovist顯影劑 Liver MRI
-        "X75-661": { base: 192, category: "特殊攝影" }, // (放射)ESOPHAGOGRAPHY
-        "X75-681": { base: 462.4, category: "特殊攝影" }, // (放射)UPPER G-I SERIES
-        "X75-701": { base: 470.4, category: "特殊攝影" }, // (放射)SMALL BOWEL SERIES
-        "X75-736": { base: 240, category: "特殊攝影" }, // (放射)VOIDING URETHROCYSTOGRAPHY
-        "X75-760": { base: 1382.4, category: "介入" }, // (放射)(膽囊)經皮穿刺膽囊引流術
-        "X75-786": { base: 960, category: "介入" }, // (放射)乳房攝影立體定位組織切片術
-        "X75-896": { base: 7040, category: "介入" }, // (放射)HAIC 血管阻塞術
-        "X75-975": { base: 72, category: "其他" }, // (放射)X-ray bone densitometr
-        "X75-980": { base: 492.8, category: "特殊攝影" }, // (放射)SWALLOWING VIDEO FLUOROGRAPHY
-        "X75-983": { base: 1216, category: "介入" }, // (放射)電腦斷層導引下組織切片,取樣剛體CT Guide biopsy
-        "X75-999": { base: 92, category: "介入" }, // (放射)血管攝影使用非離子性顯影劑
-        "X75-721": { base: 393.6, category: "特殊攝影" }, // (放射)LOWER G-I SERIES
-        "X75-731": { base: 173.4, category: "一般" }, // (放射)INFUSION I.V.P.
-        "X75-781": { base: 448, category: "特殊攝影" }, // (放射)子宮輸卵管造影 (H.S.G)
-        "X75-784": { base: 149.4, category: "乳攝" }, // (放射)MAMMOGRAPHY
-        "X75-009E": { base: 202.5, category: "一般" }, // (限自費)骨質密度檢測(腰椎及髖骨)
-        "X75-002ZA": { base: 720, category: "CT" }, // (國健署)肺癌篩檢
-        "X75-M20": { base: 3082, category: "介入" }, // (放射)經皮穿肝膽管引流術 Percutaneous Abscess Drainage PTAD
-        "X75-915": { base: 1920, category: "介入" }, // (放射)L'T ANTEGRADE VENOGRAPHY(左側靜脈X光攝影)
-        "X75-911": { base: 1920, category: "介入" }, // (放射)ANTEGRADE VENOGRAPHY靜脈 X光攝影
-        "X75-898": { base: 7040, category: "介入" }, // (放射)血管阻塞術
-        "X75-M02": { base: 9149.12, category: "介入" }, // (放射)TACE 經導管動脈化學藥物栓塞
-        "X75-M08": { base: 224.1, category: "乳攝" }, // (健檢用)乳房攝影檢查
-        "X75-745": { base: 262.4, category: "特殊攝影" }, // (放射)插入 T型管子膽囊造影術(T-Tube)
-        "X75-412": { base: 54, category: "一般" }, // (放射)SACRUM (2 VIEWS)
-        "X75-452": { base: 54, category: "一般" }, // (放射)WHOLE SPINE IN LAT. VIEW(STANDING OR SUP
-        "X75-451": { base: 54, category: "一般" }, // (放射)WHOLE SPINE IN A-P VIEW FOR SCOLIOSIS
-        "X75-014": { base: 24, category: "一般" }, // (放射)CHEST IN LORDOTIC VIEW
-        "X75-539": { base: 24, category: "一般" }, // (放射)WRIST VIEW(1 VIEW)
-        "X75-422": { base: 54, category: "一般" }, // (放射)COCCYX BONE (2 VIEWS)
-        "X75-103": { base: 24, category: "一般" }, // (放射)PLAIN ABD.(DECUBITUS POSITION)
-        "X75-616": { base: 24, category: "一般" }, // (放射)TIBIA VIEW(1 VIEW)
-        "X75-421": { base: 30, category: "一般" }, // (放射)COCCYX BONE (1 VIEW)
-        "X75-231": { base: 24, category: "一般" }, // (放射)SKULL T-M Joints
-        "X75-M17": { base: 45, category: "一般" }, // (健檢用)正面腰椎X光spine ap& lat lumbar
-        "X75-M23": { base: 36, category: "一般" }, // X光片複製費
-        "X75-852": { base: 3600, category: "介入" }, // (放射)頸動脈造影：雙側
-        "X75-853": { base: 1545.6, category: "介入" }, // (放射)椎動脈造影
-        "X75-M16": { base: 36, category: "一般" }, // (健檢用)正面頸椎X光spine ap& lat Cervical
-        "X75-761": { base: 1008, category: "特殊攝影" }, // (放射)經皮穿肝膽管造影術 P.T.C.
-        "X75-749": { base: 384, category: "介入" }, // (放射)REVISION OF PERCUTANEOUS NEPHROSTOMY TUBE(PIGTAIL)
-        "X75-M27": { base: 1380, category: "MRI" }, // (放射)MRI of Rectal Staging
-        "X75-891": { base: 2400, category: "介入" }, // (放射)ARTERIOGRAPHY OF EXTREMITY四肢血管造影
-        "X75-913": { base: 1920, category: "介入" }, // (放射)R'T ANTEGRADE VENOGRAPHY(右側靜脈X光攝影)
-        "X75-762": { base: 3072, category: "介入" }, // (放射)P.T.C.D
-        "X75-M29": { base: 805.6, category: "CT" }, // (放射)CT of Chest+Abdomen+Pelvis
-        "X75-M28": { base: 608, category: "CT" }, // (放射)CT of Chest+Abdomen+Pelvis
-        "X75-M32": { base: 608, category: "CT" }, // (放射)CT of Head + C-spine(for 急診 trauma專用)
-        "X75-051": { base: 24, category: "一般" }, // (放射)CHEST IN DECUBITUS POSITION
-        "X75-763": { base: 384, category: "介入" }, // PTCD revision
-        "X75-872": { base: 3600, category: "介入" }, // 腹腔動脈造影 ─二條血管
-        "X75-873": { base: 4800, category: "介入" }, // 腹腔動脈造影─三條血管以上
-        "X75-971": { base: 576, category: "特殊攝影" }, // arthrogram
-        "X75-523": { base: 24, category: "一般" }, // (放射)CLAVICLE ,SPECIAL VIEW ONE EXPOSURE
-        "X75-275": { base: 30, category: "一般" }, // 	SPINE VIEW
+      "X75-011M": { base: 33, category: "一般" }, // 山地鄉胸部X光檢查(IDS)
+      "X75-011": { base: 24, category: "一般" }, // CHEST P-A VIEW
+      "X75-012": { base: 24, category: "一般" }, // CHEST IN LATERAL VIEW
+      "X75-013": { base: 24, category: "一般" }, // CHEST IN OBLIQUE VIEW
+      "X75-014": { base: 24, category: "一般" }, // CHEST IN LORDOTIC VIEW
+      "X75-051": { base: 24, category: "一般" }, // CHEST IN DECUBITUS POSITION
+      "X75-101": { base: 24, category: "一般" }, // PLAIN ABD.(ERECTED)
+      "X75-103": { base: 24, category: "一般" }, // PLAIN ABD.(DECUBITUS POSITION)
+      "X75-121": { base: 24, category: "一般" }, // KUB
+      "X75-162": { base: 43.2, category: "一般" }, // SKULL ROUTINE 2 VIEWS(A-P,LAT.)
+      "X75-184": { base: 24, category: "一般" }, // SKULL FILM IN WATER'S VIEW
+      "X75-201": { base: 43.2, category: "一般" }, // SINUS IN CALDWELL, LATERAL AND WATER'S
+      "X75-231": { base: 24, category: "一般" }, // SKULL T-M Joints
+      "X75-271": { base: 24, category: "一般" }, // MANDIBLE(ONE VIEW)
+      "X75-274": { base: 24, category: "一般" }, // CHEST IN LATERAL VIEW
+      "X75-275": { base: 30, category: "一般" }, // SPINE VIEW
+      "X75-351": { base: 30, category: "一般" }, // CERVICAL SPINE(1 VIEW)
+      "X75-352": { base: 54, category: "一般" }, // CERVICAL SPINE(2 VIEWS, A-P, LAT.)
+      "X75-371": { base: 30, category: "一般" }, // THORACIC SPINE(1 VIEW)
+      "X75-382": { base: 54, category: "一般" }, // THORACIC LUMBAR SPINE(2 VIEWS)
+      "X75-391": { base: 30, category: "一般" }, // LUMBAR SPINE (1 VIEW)
+      "X75-392": { base: 54, category: "一般" }, // LUMBAR SPINE (2 VIEWS)
+      "X75-407": { base: 54, category: "一般" }, // KUB + L-S SPINE LATERAL VIEW(STANDING)
+      "X75-411": { base: 30, category: "一般" }, // SACRUM (1 VIEW)
+      "X75-412": { base: 54, category: "一般" }, // SACRUM (2 VIEWS)
+      "X75-421": { base: 30, category: "一般" }, // COCCYX BONE (1 VIEW)
+      "X75-422": { base: 54, category: "一般" }, // COCCYX BONE (2 VIEWS)
+      "X75-442": { base: 30, category: "一般" }, // NECK(1 VIEW)
+      "X75-452": { base: 54, category: "一般" }, // WHOLE SPINE IN LAT. VIEW
+      "X75-451": { base: 54, category: "一般" }, // WHOLE SPINE IN A-P VIEW FOR SCOLIOSIS
+      "X75-504": { base: 43.2, category: "一般" }, // SCAPULAR A-P & LAT
+      "X75-515": { base: 43.2, category: "一般" }, // SHOULDER JOINT(ONE) A-P & LAT
+      "X75-521": { base: 24, category: "一般" }, // CLAVICLE ONE SIDE IN A-P VIEW
+      "X75-523": { base: 24, category: "一般" }, // CLAVICLE ,SPECIAL VIEW ONE EXPOSURE
+      "X75-531": { base: 43.2, category: "一般" }, // HUMERUS ONE SIDE
+      "X75-532": { base: 43.2, category: "一般" }, // ELBOW JOINT ONE SIDE
+      "X75-533": { base: 43.2, category: "一般" }, // FOREARM ONE SIDE
+      "X75-534": { base: 43.2, category: "一般" }, // WRIST,ONE SIDE, A-P AND LAT.
+      "X75-539": { base: 24, category: "一般" }, // WRIST VIEW(1 VIEW)
+      "X75-537": { base: 43.2, category: "一般" }, // HAND, ONE SIDE,(A-P AND OBLIQUE)
+      "X75-540": { base: 24, category: "一般" }, // HAND OR FINGER VIEW(1 VIEW)
+      "X75-541": { base: 24, category: "一般" }, // PELVIS IN A-P VIEW
+      "X75-542": { base: 24, category: "一般" }, // HIP JOINT A-P, ONE SIDE
+      "X75-543": { base: 24, category: "一般" }, // HIP JOINT, LAT.VIEW (ONE SIDE)
+      "X75-581": { base: 43.2, category: "一般" }, // FEMORAL SHAFT(ONE SIDE)
+      "X75-591": { base: 43.2, category: "一般" }, // KNEE JOINT,(ONE SIDE)A-P AND LAT. VIEW
+      "X75-592": { base: 24, category: "一般" }, // MACHANT S VIEW OF PATELLA
+      "X75-611": { base: 43.2, category: "一般" }, // LOWER LEG,ONE SIDE (TIBIA AND FIBULA)
+      "X75-616": { base: 24, category: "一般" }, // TIBIA VIEW(1 VIEW)
+      "X75-612": { base: 43.2, category: "一般" }, // ANKLE JOINT, ONE SIDE
+      "X75-613": { base: 43.2, category: "一般" }, // FOOT, ONE SIDE
+      "X75-614": { base: 43.2, category: "一般" }, // CALCANEUS, ONE SIDE
+      "X75-622": { base: 75.6, category: "一般" }, // SPLIT SCANOGRAPHY
+      "X75-632": { base: 180, category: "一般" }, // LONG BONE SURVEY(CHILD UNDER 5 YEARS)
+      "X75-731": { base: 173.4, category: "一般" }, // INFUSION I.V.P.
+      "X75-M09": { base: 108, category: "一般" }, // X光骨骼密度
+      "X75-M10": { base: 36, category: "一般" }, // Standing(Chest PA)
+      "X75-M11": { base: 36, category: "一般" }, // ABDOMEN Supine KUB
+      "X75-M16": { base: 36, category: "一般" }, // 頸椎X光
+      "X75-M17": { base: 45, category: "一般" }, // 腰椎X光
+      "X75-M23": { base: 36, category: "一般" }, // X光片複製費
+      "X75-009E": { base: 202.5, category: "一般" }, // 骨質密度檢測(腰椎及髖骨)
+      "X75-991": { base: 456, category: "CT" }, // 電腦斷層造影：無造影劑
+      "X75-992": { base: 604.2, category: "CT" }, // 電腦斷層造影：有/無造影劑
+      "X75-M13": { base: 720, category: "CT" }, // 心臟鈣化分析
+      "X75-M15": { base: 2475, category: "CT" }, // 心臟冠狀動脈CT
+      "X75-M18": { base: 975, category: "CT" }, // 肝癌腫瘤篩檢
+      "X75-M19": { base: 720, category: "CT" }, // 低劑量肺部電腦斷層
+      "X75-004EA": { base: 2475, category: "CT" }, // 心臟冠狀動脈CT
+      "X75-006EA": { base: 720, category: "CT" }, // 自費低劑量肺部CT
+      "X75-002ZA": { base: 600, category: "CT" }, // 肺癌篩檢
+      "X75-M29": { base: 805.6, category: "CT" }, // CT Chest+Abdomen+Pelvis
+      "X75-M28": { base: 608, category: "CT" }, // CT Chest+Abdomen+Pelvis
+      "X75-M32": { base: 608, category: "CT" }, // CT Head + C-spine
+      "X75-987": { base: 780, category: "MRI" }, // MRI無造影劑
+      "X75-989": { base: 1380, category: "MRI" }, // MRI(無/有顯影劑)
+      "X75-M12": { base: 1170, category: "MRI" }, // 健檢MRI無造影劑
+      "X75-M03": { base: 2070, category: "MRI" }, // 自費Primovist Liver MRI
+      "X75-M25": { base: 1380, category: "MRI" }, // 健保Primovist顯影劑 Liver MRI
+      "X75-M27": { base: 1380, category: "MRI" }, // MRI of Rectal Staging
+      "X75-661": { base: 192, category: "特殊攝影" }, // ESOPHAGOGRAPHY
+      "X75-681": { base: 462.4, category: "特殊攝影" }, // UPPER G-I SERIES
+      "X75-701": { base: 470.4, category: "特殊攝影" }, // SMALL BOWEL SERIES
+      "X75-721": { base: 393.6, category: "特殊攝影" }, // LOWER G-I SERIES
+      "X75-736": { base: 240, category: "特殊攝影" }, // VOIDING URETHROCYSTOGRAPHY
+      "X75-761": { base: 1008, category: "特殊攝影" }, // PTC
+      "X75-780": { base: 448, category: "特殊攝影" }, // 子宮輸卵管造影
+      "X75-980": { base: 492.8, category: "特殊攝影" }, // 吞嚥攝影
+      "X75-971": { base: 576, category: "特殊攝影" }, // arthrogram
+      "X75-990A": { base: 992.32, category: "介入" }, // 中心導管術
+      "X75-M04": { base: 439.04, category: "介入" }, // 術中超音波
+      "X75-M14": { base: 975, category: "介入" }, // 腦部與頸動脈CTA
+      "X75-760": { base: 1382.4, category: "介入" }, // 經皮穿刺膽囊引流術
+      "X75-786": { base: 960, category: "介入" }, // 乳房立體定位切片術
+      "X75-896": { base: 7040, category: "介入" }, // HAIC 血管阻塞術
+      "X75-983": { base: 1216, category: "介入" }, // CT導引切片
+      "X75-999": { base: 92, category: "介入" }, // 非離子性顯影劑
+      "X75-M20": { base: 3082, category: "介入" }, // PTAD
+      "X75-915": { base: 1920, category: "介入" }, // L'T ANTEGRADE VENOGRAPHY
+      "X75-911": { base: 1920, category: "介入" }, // ANTEGRADE VENOGRAPHY
+      "X75-898": { base: 7040, category: "介入" }, // 血管阻塞術
+      "X75-M02": { base: 9149.12, category: "介入" }, // TACE
+      "X75-749": { base: 384, category: "介入" }, // 腎造口管修正
+      "X75-891": { base: 2400, category: "介入" }, // 四肢動脈造影
+      "X75-913": { base: 1920, category: "介入" }, // R'T ANTEGRADE VENOGRAPHY
+      "X75-762": { base: 3072, category: "介入" }, // PTCD
+      "X75-763": { base: 384, category: "介入" }, // PTCD revision
+      "X75-852": { base: 3600, category: "介入" }, // 頸動脈造影
+      "X75-853": { base: 1545.6, category: "介入" }, // 椎動脈造影
+      "X75-872": { base: 3600, category: "介入" }, // 腹腔動脈造影(二條血管)
+      "X75-873": { base: 4800, category: "介入" }, // 腹腔動脈造影(三條以上)
+      "E4012C": { base: 40, category: "其他" }, // 診斷結果編碼資料處理費
+      "X75-975": { base: 72, category: "其他" }, // X-ray bone densitometry
       };
 
       // 檢查別的倍數設定
